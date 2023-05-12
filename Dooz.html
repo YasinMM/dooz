@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dooz</title>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+        }
+        #board{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 15px;
+            position: relative;
+            background-image: url("images/doozboard.png");
+            background-size: 100% 100%;
+            background-position: 0 0;
+            background-repeat: no-repeat;
+        }
+        .row{
+            display: flex;
+            justify-content: space-between;
+            margin: 0 0 50px;
+        }
+        .row:last-child{
+            margin: 0;
+        }
+        .rowM{
+            padding: 0 10%;
+        }
+        .rowS{
+            padding: 0 20%;
+        }
+        .rowXS{
+            margin-bottom: 120px;
+            position: relative;
+        }
+        .rowXS > div{
+            position: absolute;
+        }
+        .rowXS .rowL{
+            width: 100%;
+        }
+        .rowXS .rowM{
+            width: 80%;
+        }
+        .rowXS .rowS{
+            width: 60%;
+        }
+        .circle{
+            width: 40px;
+            height: 40px;
+            border: 15px solid black;
+            border-radius: 50%;
+            background-color: white;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .circle *{
+            pointer-events: none;
+        }
+        #scoreboard{
+            height: 150px;
+            width: 40%;
+            border: 2px solid black;
+            transform: translate(0,-40px);
+            text-align: center;
+        }
+        #turnheader{
+            color: red;
+            margin: 0;
+        }
+        #pieceinfo{
+            display: flex;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+        #pieceinfo > div{
+            width: 50%;
+            height: max-content;
+            min-height: 120px;
+            max-height: 120px;
+        }
+        #bluepieceinfo{
+            border: 1px solid blue;
+        }
+        #redpieceinfo{
+            border: 1px solid red;
+        }
+        #bluepieceinfo > div , #redpieceinfo > div{
+            height: 50%;
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .bluepiece{
+            width: 30px;
+            height: 30px;
+            border: 2px solid black;
+            background-color: blue;
+            border-radius: 50%;
+        }
+        .bluepiecedefeated{
+            width: 30px;
+            height: 30px;
+            border: 2px solid black;
+            background-color: blue;
+            border-radius: 50%;
+            color: red;
+            font-size: 30px;
+        }
+        .bluepiecedefeated::before{
+            content: "X";
+        }
+        .redpiece{
+            width: 30px;
+            height: 30px;
+            border: 2px solid black;
+            background-color: red;
+            border-radius: 50%;
+        }
+        .redpiecedefeated{
+            width: 30px;
+            height: 30px;
+            border: 2px solid black;
+            background-color: red;
+            border-radius: 50%;
+            color: blue;
+            font-size: 30px;
+        }
+        .redpiecedefeated::before{
+            content: "X";
+        }
+        @keyframes rotating {
+            0%{transform: rotate(0deg)}
+            100%{transform: rotate(360deg)}
+        }
+        .selectable{
+            outline: 10px dashed darkcyan;
+            outline-offset: 5px;
+            animation-name: rotating;
+            animation-duration: 3s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+        .selected{
+            outline: 10px dotted darkorchid;
+            outline-offset: 5px;
+            animation-name: rotating;
+            animation-duration: 3s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+    </style>
+</head>
+<body>
+    <div id="board">
+        <div class="row rowL">
+            <div class="circle LTop LLeft XSTopLeft"></div>
+            <div class="circle LTop XSTop"></div>
+            <div class="circle LTop LRight XSTopRight"></div>
+        </div>
+        <div class="row rowM">
+            <div class="circle MTop MLeft XSTopLeft"></div>
+            <div class="circle MTop XSTop"></div>
+            <div class="circle MTop MRight XSTopRight"></div>
+        </div>
+        <div class="row rowS">
+            <div class="circle STop SLeft XSTopLeft"></div>
+            <div class="circle STop XSTop"></div>
+            <div class="circle STop SRight XSTopRight"></div>
+        </div>
+        <div class="row rowXS">
+            <div class="row rowL">
+                <div class="circle XSLeft LLeft"></div>
+
+                <div class="circle XSRight LRight"></div>
+            </div>
+            <div class="row rowM">
+                <div class="circle XSLeft MLeft"></div>
+
+                <div class="circle XSRight MRight"></div>
+            </div>
+            <div class="row rowS">
+                <div class="circle XSLeft SLeft"></div>
+                <div id="scoreboard">
+                    <h2 id="turnheader">Red's turn</h2>
+                    <div id="pieceinfo">
+                        <div id="bluepieceinfo">
+                            <div id="bluestarterpieces">
+                                <div class="bluepiece"></div>
+                                <div class="bluepiece"></div>
+                                <div class="bluepiece"></div>
+                                <div class="bluepiece"></div>
+                                <div class="bluepiece"></div>
+                                <div class="bluepiece"></div>
+                                <div class="bluepiece"></div>
+                                <div class="bluepiece"></div>
+                                <div class="bluepiece"></div>
+                                <div class="bluepiece"></div>
+                            </div>
+                            <div id="bluedefeatedpieces">
+
+                            </div>
+                        </div>
+                        <div id="redpieceinfo">
+                            <div id="redstarterpieces">
+                                <div class="redpiece"></div>
+                                <div class="redpiece"></div>
+                                <div class="redpiece"></div>
+                                <div class="redpiece"></div>
+                                <div class="redpiece"></div>
+                                <div class="redpiece"></div>
+                                <div class="redpiece"></div>
+                                <div class="redpiece"></div>
+                                <div class="redpiece"></div>
+                                <div class="redpiece"></div>
+                            </div>
+                            <div id="reddefeatedpieces">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="circle XSRight SRight"></div>
+            </div>
+        </div>
+        <div class="row rowS">
+            <div class="circle SBot SLeft XSBotLeft"></div>
+            <div class="circle SBot XSBot"></div>
+            <div class="circle SBot SRight XSBotRight"></div>
+        </div>
+        <div class="row rowM">
+            <div class="circle MBot MLeft XSBotLeft"></div>
+            <div class="circle MBot XSBot"></div>
+            <div class="circle MBot MRight XSBotRight"></div>
+        </div>
+        <div class="row rowL">
+            <div class="circle LBot LLeft XSBotLeft"></div>
+            <div class="circle LBot XSBot"></div>
+            <div class="circle LBot LRight XSBotRight"></div>
+        </div>
+    </div>
+</body>
+<script>
+    let turn = "red"
+    let boardheader = document.querySelector("#turnheader")
+    const DoozPositions = ["LTop","MTop","STop","LLeft","MLeft","SLeft","LBot","MBot","SBot","LRight","MRight","SRight","XSTop","XSTopLeft","XSLeft","XSBotLeft","XSBot","XSBotRight","XSRight","XSTopRight"]
+    let DoozStatus = []
+    DoozPositions.forEach((pos)=>{
+        let circles = document.querySelectorAll(`.${pos}`)
+        let posStatus = []
+        circles.forEach((c)=>{
+            if(c.children.length===0){
+                posStatus.push(null)
+            }else if(c.firstElementChild.classList.contains("redpiece")){
+                posStatus.push("red")
+            }else if(c.firstElementChild.classList.contains("bluepiece")){
+                posStatus.push("blue")
+            }else{
+                posStatus.push(null)
+            }
+        })
+        if(posStatus[0]==="red" && posStatus[1]==="red" && posStatus[2]==="red"){
+            DoozStatus.push("red")
+        }else if(posStatus[0]==="blue" && posStatus[1]==="blue" && posStatus[2]==="blue"){
+            DoozStatus.push("blue")
+        }else{
+            DoozStatus.push(null)
+        }
+    })
+    function checkNewDooz(){
+        let newDoozStatus = []
+        DoozPositions.forEach((pos)=>{
+            let circles = document.querySelectorAll(`.${pos}`)
+            let posStatus = []
+            circles.forEach((c)=>{
+                if(c.children.length===0){
+                    posStatus.push(null)
+                }else if(c.firstElementChild.classList.contains("redpiece")){
+                    posStatus.push("red")
+                }else if(c.firstElementChild.classList.contains("bluepiece")){
+                    posStatus.push("blue")
+                }else{
+                    posStatus.push(null)
+                }
+            })
+            if(posStatus[0]==="red" && posStatus[1]==="red" && posStatus[2]==="red"){
+                newDoozStatus.push("red")
+            }else if(posStatus[0]==="blue" && posStatus[1]==="blue" && posStatus[2]==="blue"){
+                newDoozStatus.push("blue")
+            }else{
+                newDoozStatus.push(null)
+            }
+        })
+        let newDooz = false
+        if(turn==="red"){
+            for(let i=0;i<20;i++){
+                if(DoozStatus[i]!=="red" && newDoozStatus[i]==="red"){
+                    newDooz = true
+                }
+            }
+        }else{
+            for(let i=0;i<20;i++){
+                if(DoozStatus[i]!=="blue" && newDoozStatus[i]==="blue"){
+                    newDooz = true
+                }
+            }
+        }
+        DoozStatus = newDoozStatus.copyWithin(0,20)
+        return newDooz
+    }
+    let redstarter = 10
+    let bluestarter = 10
+    let redstartercontainer = document.querySelector("#redstarterpieces")
+    let bluestartercontainer = document.querySelector("#bluestarterpieces")
+    let reddefeatedcontainer = document.querySelector("#reddefeatedpieces")
+    let bluedefeatedcontainer = document.querySelector("#bluedefeatedpieces")
+    function changeTurn(){
+        if(document.querySelectorAll(".redpiece").length<3){
+            document.querySelectorAll(".circle").forEach((c)=>{
+                c.onclick = null
+            })
+            boardheader.style.color = "blue"
+            boardheader.innerHTML = "BLUE WON!"
+            return;
+        }else if(document.querySelectorAll(".bluepiece").length<3){
+            document.querySelectorAll(".circle").forEach((c)=>{
+                c.onclick = null
+            })
+            boardheader.style.color = "red"
+            boardheader.innerHTML = "RED WON!"
+            return;
+        }
+        if (turn==="red"){
+            turn = "blue"
+            boardheader.innerHTML = "Blue's turn"
+            boardheader.style.color = "blue"
+            if(bluestarter<=0){
+                document.querySelectorAll(".circle").forEach((c)=>{
+                    c.onclick = null
+                })
+                document.querySelectorAll(".circle .bluepiece").forEach((c)=>{
+                    c.parentElement.onclick = circleFunc
+                })
+            }else{
+                document.querySelectorAll(".circle").forEach((c)=>{
+                    c.onclick = circleFunc
+                })
+            }
+        }else{
+            turn = "red"
+            boardheader.innerHTML = "Red's turn"
+            boardheader.style.color = "red"
+            if(redstarter<=0){
+                document.querySelectorAll(".circle").forEach((c)=>{
+                    c.onclick = null
+                })
+                document.querySelectorAll(".circle .redpiece").forEach((c)=>{
+                    c.parentElement.onclick = circleFunc
+                })
+            }else{
+                document.querySelectorAll(".circle").forEach((c)=>{
+                    c.onclick = circleFunc
+                })
+            }
+        }
+    }
+    function killBlue(){
+        if(bluestarter>0){
+            bluestarter--
+            bluestartercontainer.removeChild(bluestartercontainer.children[0])
+            let newdefeatedblue = document.createElement("div")
+            newdefeatedblue.classList.add("bluepiecedefeated")
+            bluedefeatedcontainer.appendChild(newdefeatedblue)
+            changeTurn()
+        }else{
+            function blueToBeKilled(e){
+                e.target.removeChild(e.target.firstElementChild)
+                document.querySelectorAll(".selectable").forEach((s)=>{
+                    s.classList.remove("selectable")
+                })
+                document.querySelectorAll(".circle").forEach((c)=>{
+                    c.onclick = circleFunc
+                })
+                let newdefeatedblue = document.createElement("div")
+                newdefeatedblue.classList.add("bluepiecedefeated")
+                bluedefeatedcontainer.appendChild(newdefeatedblue)
+                changeTurn()
+            }
+            document.querySelectorAll(".circle").forEach((c)=>{
+                c.onclick = null
+            })
+            document.querySelectorAll(".circle .bluepiece").forEach((e)=>{
+                e.parentElement.classList.add("selectable")
+                e.parentElement.onclick = blueToBeKilled
+            })
+        }
+    }
+    function killRed(){
+        if(redstarter>0){
+            redstarter--
+            redstartercontainer.removeChild(redstartercontainer.children[0])
+            let newdefeatedred = document.createElement("div")
+            newdefeatedred.classList.add("redpiecedefeated")
+            reddefeatedcontainer.appendChild(newdefeatedred)
+            changeTurn()
+        }else{
+            function redToBeKilled(e){
+                e.target.removeChild(e.target.firstElementChild)
+                document.querySelectorAll(".selectable").forEach((s)=>{
+                    s.classList.remove("selectable")
+                })
+                document.querySelectorAll(".circle").forEach((c)=>{
+                    c.onclick = circleFunc
+                })
+                let newdefeatedred = document.createElement("div")
+                newdefeatedred.classList.add("redpiecedefeated")
+                reddefeatedcontainer.appendChild(newdefeatedred)
+                changeTurn()
+            }
+            document.querySelectorAll(".circle").forEach((c)=>{
+                c.onclick = null
+            })
+            document.querySelectorAll(".circle .redpiece").forEach((e)=>{
+                e.parentElement.classList.add("selectable")
+                e.parentElement.onclick = redToBeKilled
+            })
+        }
+    }
+    const circleFunc = (e) =>{
+        if(turn==="red"){
+            if(redstarter>0){
+                if(e.target.children.length===0){
+                    let newredpiece = document.createElement("div")
+                    newredpiece.classList.add("redpiece")
+                    e.target.appendChild(newredpiece)
+                    redstarter--
+                    redstartercontainer.removeChild(redstartercontainer.children[0])
+                    if(checkNewDooz()){
+                        killBlue()
+                    }else{
+                        changeTurn()
+                    }
+                }
+            }else{
+                let eligibleMoves = []
+                if(document.querySelectorAll(".circle .redpiece").length<=4){
+                    document.querySelectorAll(".circle").forEach((c)=>{
+                        if(c.children.length===0){
+                            eligibleMoves.push(c)
+                        }
+                    })
+                }else{
+                    let rows = e.target.classList
+                    rows.forEach((row)=>{
+                        if(row==="circle"){
+
+                        }else{
+                            let rowCircles = document.querySelectorAll(`.${row}`)
+                            //console.log(rowCircles)
+                            let selfIndex = 0
+                            for (let i=0;i<3;i++){
+                                if(rowCircles[i]===e.target){
+                                    selfIndex = i
+                                    break;
+                                }
+                            }
+                            if(rowCircles[selfIndex-1] && rowCircles[selfIndex-1].children.length===0){
+                                eligibleMoves.push(rowCircles[selfIndex-1])
+                            }
+                            if(rowCircles[selfIndex+1] && rowCircles[selfIndex+1].children.length===0){
+                                eligibleMoves.push(rowCircles[selfIndex+1])
+                            }
+                        }
+                    })
+                }
+                if(eligibleMoves.length===0){
+                    alert("No eligible moves.")
+                }else{
+                    document.querySelectorAll(".circle").forEach((c)=>{
+                        c.onclick = null
+                    })
+                    function MoveRed(event){
+                        let start = e.target
+                        let dest = event.target
+                        start.removeChild(start.firstElementChild)
+                        let newred = document.createElement("div")
+                        newred.classList.add("redpiece")
+                        dest.appendChild(newred)
+                        document.querySelectorAll(".selectable").forEach((c)=>{
+                            c.classList.remove("selectable")
+                        })
+                        document.querySelector(".selected").classList.remove("selected")
+                        if(checkNewDooz()){
+                            killBlue()
+                        }else{
+                            changeTurn()
+                        }
+                    }
+                    eligibleMoves.forEach((c)=>{
+                        c.classList.add("selectable")
+                        c.onclick = MoveRed
+                    })
+                    function cancelMoveRed(){
+                        document.querySelectorAll(".selectable").forEach((c)=>{
+                            c.classList.remove("selectable")
+                        })
+                        document.querySelectorAll(".circle .redpiece").forEach((c)=>{
+                            c.parentElement.onclick = circleFunc
+                        })
+                        document.querySelector(".selected").classList.remove("selected")
+                    }
+                    e.target.classList.add("selected")
+                    e.target.onclick = cancelMoveRed
+                }
+            }
+        }else{
+            if (bluestarter>0){
+                if(e.target.children.length===0){
+                    let newbluepiece = document.createElement("div")
+                    newbluepiece.classList.add("bluepiece")
+                    e.target.appendChild(newbluepiece)
+                    bluestarter--
+                    bluestartercontainer.removeChild(bluestartercontainer.children[0])
+                    if(checkNewDooz()){
+                        killRed()
+                    }else{
+                        changeTurn()
+                    }
+                }
+            }else{
+                let eligibleMoves = []
+                if(document.querySelectorAll(".circle .bluepiece").length<=4){
+                    document.querySelectorAll(".circle").forEach((c)=>{
+                        if(c.children.length===0){
+                            eligibleMoves.push(c)
+                        }
+                    })
+                }else{
+                    let rows = e.target.classList
+                    rows.forEach((row)=>{
+                        if(row==="circle"){
+
+                        }else{
+                            let rowCircles = document.querySelectorAll(`.${row}`)
+                            let selfIndex = 0
+                            for (let i=0;i<3;i++){
+                                if(rowCircles[i]===e.target){
+                                    selfIndex = i
+                                    break;
+                                }
+                            }
+                            if(rowCircles[selfIndex-1] && rowCircles[selfIndex-1].children.length===0){
+                                eligibleMoves.push(rowCircles[selfIndex-1])
+                            }
+                            if(rowCircles[selfIndex+1] && rowCircles[selfIndex+1].children.length===0){
+                                eligibleMoves.push(rowCircles[selfIndex+1])
+                            }
+                        }
+                    })
+                }
+                if (eligibleMoves.length===0){
+                    alert("No eligible moves.")
+                }else{
+                    document.querySelectorAll(".circle").forEach((c)=>{
+                        c.onclick = null
+                    })
+                    function MoveBlue(event){
+                        let start = e.target
+                        let dest = event.target
+                        start.removeChild(start.firstElementChild)
+                        let newblue = document.createElement("div")
+                        newblue.classList.add("bluepiece")
+                        dest.appendChild(newblue)
+                        document.querySelectorAll(".selectable").forEach((c)=>{
+                            c.classList.remove("selectable")
+                        })
+                        document.querySelector(".selected").classList.remove("selected")
+                        if(checkNewDooz()){
+                            killRed()
+                        }else{
+                            changeTurn()
+                        }
+                    }
+                    eligibleMoves.forEach((c)=>{
+                        c.classList.add("selectable")
+                        c.onclick = MoveBlue
+                    })
+                    function cancelMoveBlue(){
+                        document.querySelectorAll(".selectable").forEach((c)=>{
+                            c.classList.remove("selectable")
+                        })
+                        document.querySelectorAll(".circle .bluepiece").forEach((c)=>{
+                            c.parentElement.onclick = circleFunc
+                        })
+                        document.querySelector(".selected").classList.remove("selected")
+                    }
+                    e.target.classList.add("selected")
+                    e.target.onclick = cancelMoveBlue
+                }
+            }
+        }
+    }
+    document.querySelectorAll(".circle").forEach((c)=>{
+        c.onclick = circleFunc
+    })
+</script>
+</html>
