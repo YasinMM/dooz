@@ -391,6 +391,7 @@
                 let newdefeatedblue = document.createElement("div")
                 newdefeatedblue.classList.add("bluepiecedefeated")
                 bluedefeatedcontainer.appendChild(newdefeatedblue)
+                checkNewDooz()
                 changeTurn()
             }
             document.querySelectorAll(".circle").forEach((c)=>{
@@ -422,6 +423,7 @@
                 let newdefeatedred = document.createElement("div")
                 newdefeatedred.classList.add("redpiecedefeated")
                 reddefeatedcontainer.appendChild(newdefeatedred)
+                checkNewDooz()
                 changeTurn()
             }
             document.querySelectorAll(".circle").forEach((c)=>{
